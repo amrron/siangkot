@@ -9,12 +9,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiAngkot</title>
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">   -->
+    
+    <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    
+    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="../scripts/leaflet.geometryutil.js"></script>
+    <script src="../scripts/leaflet-arrowheads.js"></script>
+
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -65,7 +75,7 @@
     <script>
 
         $.getJSON('../data/lintasan.json', function(data){
-            let lintasan = data['24'];
+            let lintasan = data['<?= $_GET['koridor'] ?>'];
             $.each(lintasan, function(index, tempat){
                 let timeline = `<li class="mb-4 ms-4">
                             <div class="absolute w-3 h-3 bg-[#EAD7BB] rounded-full mt-1.5 -start-1.5 border border-[#EAD7BB]"></div>
@@ -87,7 +97,30 @@
 
         fetch("../data/rute.geojson").then(res => res.json()).then(data => {
             // add GeoJSON layer to the map once the file is loaded
-            L.geoJson(data).addTo(map);
+            L.geoJson(data, {
+                filter: function(feature, layer) {
+                    return feature.properties.koridor == <?= $_GET['koridor'] ?>;
+                },
+                style: function(feature) {
+                    switch (feature.properties.koridor) {
+                        case '01': return {color: "#1abc9c"};
+                        case '02': return {color: "#2ecc71"};
+                        case '03': return {color: "#3498db"};
+                        case '04': return {color: "#9b59b6"};
+                        case '05': return {color: "#34495e"};
+                        case '06': return {color: "#16a085"};
+                        case '07': return {color: "#27ae60"};
+                        case '08': return {color: "#2980b9"};
+                        case '09': return {color: "#8e44ad"};
+                        case '10': return {color: "#2c3e50"};
+                        case '24': return {color: "#e67e22"};
+                    }
+                },
+                arrowheads: {
+                    frequency: '150px', 
+                    size: '12px'
+                }
+            }).addTo(map);
         });
 
     </script>
