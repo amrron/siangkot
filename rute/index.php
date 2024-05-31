@@ -49,31 +49,82 @@
 </head>
 <body class="font-sans">
      <!-- NAVBAR START -->
-     <header class="bg-[#4983C7]">
+     <!-- <header class="bg-[#4983C7]">
         <div class="container max-w-7xl m-auto py-6 px-4">
             <h1 class="pb-10 text-[#EAD7BB] font-semibold text-3xl">SiAngkot</h1>
-            <div class="flex justify-between"> <!-- Membuat container baru untuk mengatur float -->
+            <div class="flex justify-between">
                 <h3 class="text-[#EAD7BB;] text-2xl font-semibold">Informasi Rute <br> Angkutan Kota Bogor</h3>
                 <img src="../assets/logo_kotabogor.png" alt="logo_kotabogor">
             </div>
         </div>
-    </header>
+    </header> -->
+    <nav class="border-gray-200 bg-[#4983C7]">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <div class="">
+                <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <img src="/assets/logo_singkot.png" class="h-8" alt="Flowbite Logo" />
+                </a>
+                <div class="">
+                    <h1 class="text-[#EAD7BB] text-lg">
+                        Informasi Rute Angkutan Kota Bogor
+                    </h1>
+                </div>
+            </div>
+            <button data-collapse-toggle="navbar-solid-bg" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200" aria-controls="navbar-solid-bg" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                </svg>
+            </button>
+            <div class="hidden w-full md:block md:w-auto" id="navbar-solid-bg">
+                <ul class="flex flex-col font-medium mt-4 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-transparent ">
+                    <li>
+                    <a href="#" class="block py-2 px-3 md:p-0 text-[#EAD7BB] rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-white" aria-current="page">Home</a>
+                    </li>
+                    <li>
+                    <a href="#" class="block py-2 px-3 md:p-0 text-[#EAD7BB] rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-white">Rute</a>
+                    </li>
+                    <li>
+                    <a href="#" class="block py-2 px-3 md:p-0 text-[#EAD7BB] rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-white">Tentang</a>
+                    </li>
+                    <!-- <li>
+                    <a href="#" class="block py-2 px-3 md:p-0 text-[#EAD7BB] rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-white">Pricing</a>
+                    </li>
+                    <li>
+                    <a href="#" class="block py-2 px-3 md:p-0 text-[#EAD7BB] rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-white">Contact</a>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
     <!-- NAVBAR END -->
 
     <!-- CONTENT START -->
-    <div class="max-w-7xl m-auto p-6">
+    <div class="max-w-7xl m-auto p-6 pt-12">
         <!-- <p class="mb-5 text-xl mb-8">Untuk melihat rute dan perkiraan tarif Angkot silahkan klik nomor angkot di bawah ini</p> -->
         <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12">
+                <a href="/" class="flex gap-2 item-center text-lg font-semibold">
+                    <svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/>
+                    </svg>
+                    <span>
+                    Lihat rute lain
+                    </span> 
+                </a>
+            </div>
             <div class="col-span-4 flex flex-col gap-4">
-                <div class="text-decoration-none bg-[#4983C7] p-8 rounded-lg overflow-y-scroll h-[calc(100vh-32px)] no-scrollbar cursor-grab">
+                <p class="">Angkot <span id="koridor_angkot">24</span> melewati <span id="total_wilayah">32</span> jalan/wilayah. Berangkat dari <span id="asal_rute"></span> dan berakhir di <span id="tujuan_rute"></span>. Rute Ankot ini memilki total panjang rute <span id="panjang_rute"></span> km.</p>
+                <div class="text-decoration-none bg-[#4983C7] p-8 rounded-lg overflow-y-scroll max-h-[calc(100vh-314px)] no-scrollbar cursor-grab">
                     <ol id="lintasan" class="relative border-s border-[#EAD7BB]">
                         
                     </ol> 
                 </div>      
             </div>
             <div class="col-span-8 ">
-                <div id="map" class="w-100 h-[calc(100vh-32px)] rounded-lg"></div>
-                <div id="route-length" class="mt-3">Jarak rute: <span id="length"></span> km</div>
+                <h2 class="font-bold text-gray-700 mb-4">Peta rute Angkutan Kota Bogor <span id="map-title"></span></h2>
+                <div id="map" class="w-100 h-[calc(100vh-242px)] rounded-lg"></div>
+                <!-- <div id="route-length" class="mt-3">Jarak rute: <span id="length"></span> km</div> -->
             </div>
             
         </div>
@@ -85,8 +136,12 @@
     <script>
         const koridor = "<?= $_GET['koridor'] ?>";
 
+        $('#koridor_angkot').text(koridor)
+
         $.getJSON('../data/lintasan.json', function(data){
             let lintasan = data[koridor];
+            let jumlahWilayah = lintasan.length - 1;
+            $('#total_wilayah').text(jumlahWilayah);
             $.each(lintasan, function(index, tempat){
                 let timeline = `<li class="mb-4 ms-4">
                             <div class="absolute w-3 h-3 bg-[#EAD7BB] rounded-full mt-1.5 -start-1.5 border border-[#EAD7BB]"></div>
@@ -133,14 +188,24 @@
 
         function configureLeaflet(data) {
             let totalLength = 0;
-            L.geoJson(data, {
+            var geoJsonLayer = L.geoJson(data, {
                 filter: function(feature, layer) {
+                    if (feature.properties.koridor == koridor) {
+                        $('#map-title').text(feature.properties.koridor + " : " + feature.properties.asalTujuan);
+                        let asalTujuan = feature.properties.asalTujuan
+                        let asalTujuanArray = feature.properties.asalTujuan.split(" - ");
+                        console.log(asalTujuanArray);
+                        let asal_rute = asalTujuanArray[0];
+                        let tujuan_rute = asalTujuanArray[1];
+                        $('#asal_rute').html(asal_rute);
+                        $('#tujuan_rute').html(tujuan_rute);
+                    }
                     return feature.properties.koridor == koridor;
                 },
                 style: function(feature) {
                     return {
                         color: colorStyle[feature.properties.koridor],
-                        weight: 5
+                        // weight: 1
                     }
                 },
                 arrowheads: {
@@ -155,6 +220,11 @@
                 }
             }).addTo(map);
 
+            if (geoJsonLayer.getLayers().length > 0) {
+                var bounds = geoJsonLayer.getBounds();
+                map.fitBounds(bounds);
+            }
+
             data.features.forEach(feature => {
                 if (feature.properties.koridor == koridor) {
                     totalLength += turf.length(feature);
@@ -162,6 +232,7 @@
             });
 
             $("#length").text(totalLength.toFixed(2));
+            $("#panjang_rute").text(totalLength.toFixed(2));
         }
 
         async function initializeMap() {
@@ -175,10 +246,10 @@
 
         initializeMap();
 
-        map.locate({setView: true, maxZoom: 14});
+        map.locate({watch: false});
 
         async function onLocationFound(e) {
-            var radius = 50;
+            var radius = 0;
 
             L.marker(e.latlng).addTo(map)
                 .bindPopup("Lokasi Anda saat ini").openPopup();
