@@ -1,3 +1,4 @@
+Options -Indexes
 RewriteEngine On
 RewriteBase /rute
 RewriteRule ^([a-zA-Z0-9]+)$ index.php?koridor=$1 [L,QSA]
