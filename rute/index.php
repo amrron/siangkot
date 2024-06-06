@@ -21,13 +21,13 @@
     <!-- NAVBAR END -->
 
     <!-- CONTENT START -->
-    <div class="max-w-7xl m-auto p-6 pt-12 min-h-screen">
+    <div class="max-w-7xl m-auto p-6 pt-12 min-h-screen pt-[116px]">
         <?php
         if (isset($_GET['koridor'])) :
         ?>
         <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-12">
-                <a href="/" class="flex gap-2 item-center text-lg font-semibold">
+            <div class="col-span-12 order-1">
+                <a href="/" class="flex gap-2 item-center text-lg font-semibold w-auto">
                     <svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/>
                     </svg>
@@ -36,7 +36,7 @@
                     </span> 
                 </a>
             </div>
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="col-span-12 md:col-span-4 flex flex-col gap-4 order-3 md:order-2">
                 <p class="">Angkot <span id="koridor_angkot">24</span> melewati <span id="total_wilayah">32</span> jalan/wilayah. Berangkat dari <span id="asal_rute"></span> dan berakhir di <span id="tujuan_rute"></span>. Rute Ankot ini memilki total panjang rute <span id="panjang_rute"></span> km.</p>
                 <div class="text-decoration-none bg-[#4983C7] p-8 rounded-lg overflow-y-scroll max-h-[calc(100vh-314px)] no-scrollbar cursor-grab">
                     <ol id="lintasan" class="relative border-s border-[#EAD7BB]">
@@ -44,9 +44,9 @@
                     </ol> 
                 </div>      
             </div>
-            <div class="col-span-8 ">
+            <div class="col-span-12 md:col-span-8 order-2 md:order-3">
                 <h2 class="font-bold text-gray-700 mb-4">Peta rute Angkutan Kota Bogor <span id="map-title"></span></h2>
-                <div id="map" class="w-100 h-[calc(100vh-242px)] rounded-lg"></div>
+                <div id="map" class="w-100 h-[calc(100vh-242px)] z-10 rounded-lg"></div>
                 <!-- <div id="route-length" class="mt-3">Jarak rute: <span id="length"></span> km</div> -->
             </div>
         </div>
@@ -80,7 +80,7 @@
                 $('#total_wilayah').text(jumlahWilayah);
                 $.each(lintasan.lintasan, function(index, tempat){
                     let timeline = `<li class="mb-4 ms-4">
-                                <div class="absolute w-3 h-3 bg-[#EAD7BB] rounded-full mt-1.5 -start-1.5 border border-[#EAD7BB]"></div>
+                                <div class="absolute w-3 h-3 bg-[#EAD7BB] rounded-full -start-1.5 border border-[#EAD7BB]"></div>
                                 <time class="mb-1 text-sm font-normal leading-none text-[#EAD7BB]">${tempat}</time>
                             </li>`;
                     $('#lintasan').append(timeline);
@@ -90,6 +90,11 @@
             const map = L.map('map', {
                 center: [-6.596645, 106.797313],
                 zoom: 14,
+                fullscreenControl: true,
+                fullscreenControlOptions: {
+                    position: 'topright'
+                },
+                forceSeparateButton: true,
             });
 
             let colorStyle = {
@@ -110,6 +115,8 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
+            var geoJsonLayer;
+
             async function fetchData() {
                 try {
                     const res = await fetch("../data/rute.geojson");
@@ -124,7 +131,10 @@
 
             function configureLeaflet(data) {
                 let totalLength = 0;
-                var geoJsonLayer = L.geoJson(data, {
+                if (geoJsonLayer) {
+                    map.removeLayer(geoJsonLayer);
+                }
+                geoJsonLayer = L.geoJson(data, {
                     filter: function(feature, layer) {
                         if (feature.properties.koridor == koridor) {
                             $('#map-title').text(feature.properties.koridor + " : " + feature.properties.asalTujuan);
@@ -132,7 +142,7 @@
                             let asalTujuanArray = feature.properties.asalTujuan.split(" - ");
                             console.log(asalTujuanArray);
                             let asal_rute = asalTujuanArray[0];
-                            let tujuan_rute = asalTujuanArray[1];
+                            let tujuan_rute = asalTujuanArray.at(-1);
                             $('#asal_rute').html(asal_rute);
                             $('#tujuan_rute').html(tujuan_rute);
                         }
@@ -182,7 +192,43 @@
 
             initializeMap();
 
-            map.locate({watch: false});
+            function centerRoute() {
+                if (geoJsonLayer && geoJsonLayer.getLayers().length > 0) {
+                    var bounds = geoJsonLayer.getBounds();
+                    map.fitBounds(bounds);
+                }
+            }
+
+            // Tambahkan tombol ke peta
+            L.Control.CenterRoute = L.Control.extend({
+                onAdd: function(map) {
+                    var div = L.DomUtil.create('div', 'leaflet-control-center-route');
+                    div.innerHTML = `<svg class="w-[21.5px] h-[21.5px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
+                                </svg>
+                                `;
+                    div.style.backgroundColor = 'white';
+                    div.style.padding = '5px';
+                    div.style.border = '2px solid rgba(0, 0, 0, 0.2)';
+                    div.style.borderRadius = '3px';
+                    div.style.cursor = 'pointer';
+                    div.onclick = centerRoute;
+                    return div;
+                },
+                onRemove: function(map) {
+                    // Tidak perlu melakukan apa-apa saat kontrol dihapus
+                }
+            });
+
+            L.control.centerRoute = function(opts) {
+                return new L.Control.CenterRoute(opts);
+            }
+
+            // Tambahkan kontrol kustom ke peta
+            L.control.centerRoute({ position: 'topright' }).addTo(map);
+
+            // map.locate({watch: false});
 
             async function onLocationFound(e) {
                 var radius = 0;
@@ -192,28 +238,28 @@
 
                 L.circle(e.latlng, radius).addTo(map);
 
-                let ruteData = await fetchData();
+                // let ruteData = await fetchData();
 
                 // Temukan titik terdekat pada rute angkot
-                if (ruteData) {
-                    let userLocation = [e.latlng.lng, e.latlng.lat];
-                    let nearestPoint = findNearestRoute(userLocation, ruteData);
+                // if (ruteData) {
+                //     let userLocation = [e.latlng.lng, e.latlng.lat];
+                //     let nearestPoint = findNearestRoute(userLocation, ruteData);
 
-                    if (nearestPoint) {
-                        L.Routing.control({
-                            waypoints: [
-                                L.latLng(e.latlng.lat, e.latlng.lng),
-                                L.latLng(nearestPoint[1], nearestPoint[0])
-                            ],
-                            fitSelectedRoutes: true,
-                            draggableWaypoints: false,
-                            routeWhileDragging: false,
-                            lineOptions: {
-                                addWaypoints: false,
-                            }
-                        }).addTo(map);
-                    }
-                }
+                //     if (nearestPoint) {
+                //         L.Routing.control({
+                //             waypoints: [
+                //                 L.latLng(e.latlng.lat, e.latlng.lng),
+                //                 L.latLng(nearestPoint[1], nearestPoint[0])
+                //             ],
+                //             fitSelectedRoutes: true,
+                //             draggableWaypoints: false,
+                //             routeWhileDragging: false,
+                //             lineOptions: {
+                //                 addWaypoints: false,
+                //             }
+                //         }).addTo(map);
+                //     }
+                // }
             }
 
             function findNearestRoute(userLocation, routes) {
@@ -242,7 +288,21 @@
             });
 
             function onLocationError(e) {
-                alert(e.message);
+                // alert(e.message);
+
+                console.warn('Gagal mendapatkan lokasi.')
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    var latlng = [lat, lng];
+                    var radius = 0;
+
+                    L.marker(latlng).addTo(map)
+                        .bindPopup("Lokasi Anda saat ini").openPopup();
+
+                    L.circle(latlng, radius).addTo(map);
+                });
             }
 
             map.on('locationerror', onLocationError);
@@ -252,8 +312,15 @@
         else :
         ?>
         $(document).ready(function(){
-            $.getJSON('/data/lintasan.json', function(data){
+            let wilayah = <?= isset($_GET['wilayah']) ? "'".$_GET['wilayah']."'" : "''" ?>;
+
+            $.getJSON('/rute/cari_rute.php?wilayah=' + wilayah, function(data){
                 $('#daftar-rute').empty();
+
+                if (Object.keys(data).length === 0) {
+                    $('#daftar-rute').append('<p class="col-span-12 text-center">Tidak ada rute angkot yang melalui wilayah tersebut.</p>');
+                }
+
                 $.each(data, function(index, lintasans) {
                     let lintas = `
                     <div class="w-full lintasan-card col-auto">
@@ -289,7 +356,7 @@
                     lintasan.addClass('line-clamp-1');
                     $(this).text('Lebih lanjut');
                 }
-                $(this).closest('.lintasan-card').toggleClass('col-span-3');
+                $(this).closest('.lintasan-card').toggleClass('row-span-2');
             });
         });
         <?php

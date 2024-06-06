@@ -14,11 +14,12 @@
     <!-- NAVBAR END -->
 
     <!-- CONTENT START -->
-    <div class="max-w-7xl m-auto pt-12 px-4">
+    <div class="max-w-7xl m-auto pt-12 px-4 pt-[116px]">
         <!-- <p class="mb-5 text-xl mb-8">Untuk melihat rute dan perkiraan tarif Angkot silahkan klik nomor angkot di bawah ini</p> -->
         <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-4">
-                <h2 class="font-bold text-gray-700 mb-4">Pilih Rute</h2>
+            <div class="col-span-12 md:col-span-4">
+                <!-- <h2 class="font-bold text-gray-700 mb-4">Pilih Rute</h2> -->
+                <p class="mb-4">Pilih rute untuk melihat detail rute angkot</p>
                 <div id="koridors" class="flex flex-col gap-4 no-scrollbar overflow-y-scroll h-[calc(100vh-196px)]">
                     <a href="#" class="text-decoration-none">
                         <div id="rute_btn" class="p-4 flex justify-between rounded-md bg-[#AEC8E6]">
@@ -34,9 +35,9 @@
                     </a>      
                 </div>
             </div>
-            <div class="col-span-8">
+            <div class="col-span-12 md:col-span-8">
                 <h2 class="font-bold text-gray-700 mb-4">Peta Seluruh Rute Angkutan Kota Bogor</h2>
-                <div id="map" class="w-100 h-[calc(100vh-196px)] outline-none rounded-md"></div>
+                <div id="map" class="w-100 h-[calc(100vh-196px)] z-10 outline-none rounded-md"></div>
             </div>
             
         </div>
@@ -164,7 +165,7 @@
 
         });
 
-        map.locate({watch: false});
+        // map.locate({watch: false});
 
         async function onLocationFound(e) {
             var radius = 50;
@@ -224,7 +225,21 @@
         });
 
         function onLocationError(e) {
-            alert(e.message);
+            // alert(e.message);
+
+            console.warn('Gagal mendapatkan lokasi.')
+
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                var latlng = [lat, lng];
+                var radius = 0;
+
+                L.marker(latlng).addTo(map)
+                    .bindPopup("Lokasi Anda saat ini").openPopup();
+
+                L.circle(latlng, radius).addTo(map);
+            });
         }
 
         map.on('locationerror', onLocationError);
