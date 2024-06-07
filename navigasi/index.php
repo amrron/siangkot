@@ -210,9 +210,9 @@
             return nearestPoint;
         }
 
-        map.on('locationfound', function(e) {
-            onLocationFound(e);
-        });
+        // map.on('locationfound', function(e) {
+        //     onLocationFound(e);
+        // });
 
         function onLocationError(e) {
             // alert(e.message);
@@ -240,10 +240,29 @@
         var select_start = false;
 
         $('#starting-point').on('click', function(e) {
-            console.log('pilih titik');
+            // console.log('pilih titik');
             select_start = true;
             $(this).toggleClass('hidden');
             $('#batal').toggleClass('hidden');
+            $('#current-location').toggleClass('hidden');
+        });
+
+        $('#current-location').on('click', function(){
+            $(this).toggleClass('hidden');
+            $('#batal').toggleClass('hidden');
+            $('#starting-point').toggleClass('hidden');
+
+            select_start = true;
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                pointA = {
+                    lat: position.coords.latitude, 
+                    lng: position.coords.longitude
+                };
+                // console.log(pointA);
+                markerA = L.marker(pointA).addTo(map).bindPopup("Titik Awal").openPopup();
+            });
+
         });
 
         $('#reset, #batal').on('click', function(e) {
@@ -254,6 +273,7 @@
 
             $(this).toggleClass('hidden');
             $('#starting-point').toggleClass('hidden');
+            $('#current-location').toggleClass('hidden');
 
             map.removeLayer(markerA);
             map.removeLayer(markerB);
@@ -269,8 +289,9 @@
         map.on('click', function(e){
             if (select_start) {
                 if (!pointA) {
-                pointA = e.latlng;
-                markerA = L.marker(pointA).addTo(map).bindPopup("Titik Awal").openPopup();
+                    pointA = e.latlng;
+                    // console.log(pointA);
+                    markerA = L.marker(pointA).addTo(map).bindPopup("Titik Awal").openPopup();
                 } else if (!pointB) {
                     pointB = e.latlng;
                     markerB = L.marker(pointB).addTo(map).bindPopup("Titik Tujuan").openPopup();
