@@ -57,7 +57,7 @@
             zoom: 14,
             fullscreenControl: true,
             fullscreenControlOptions: {
-                position: 'bottomright'
+                position: 'topright'
             },
             forceSeparateButton: true,
         });
@@ -94,6 +94,8 @@
 
         let koridorList = [];
 
+        var geoJsonLayer;
+
         fetchData().then(data => {
 
             data.features.forEach(feature => {
@@ -124,7 +126,7 @@
             })
 
             // add GeoJSON layer to the map once the file is loaded
-            var geoJsonLayer = L.geoJson(data, {
+            geoJsonLayer = L.geoJson(data, {
                 style: function(feature) {
                     return {
                         color: colorStyle[feature.properties.koridor],
@@ -164,6 +166,42 @@
             }
 
         });
+
+        function centerRoute() {
+            if (geoJsonLayer && geoJsonLayer.getLayers().length > 0) {
+                var bounds = geoJsonLayer.getBounds();
+                map.fitBounds(bounds);
+            }
+        }
+
+        // Tambahkan tombol ke peta
+        L.Control.CenterRoute = L.Control.extend({
+            onAdd: function(map) {
+                var div = L.DomUtil.create('div', 'leaflet-control-center-route');
+                div.innerHTML = `<svg class="w-[21.5px] h-[21.5px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
+                            </svg>
+                            `;
+                div.style.backgroundColor = 'white';
+                div.style.padding = '5px';
+                div.style.border = '2px solid rgba(0, 0, 0, 0.2)';
+                div.style.borderRadius = '3px';
+                div.style.cursor = 'pointer';
+                div.onclick = centerRoute;
+                return div;
+            },
+            onRemove: function(map) {
+                // Tidak perlu melakukan apa-apa saat kontrol dihapus
+            }
+        });
+
+        L.control.centerRoute = function(opts) {
+            return new L.Control.CenterRoute(opts);
+        }
+
+        // Tambahkan kontrol kustom ke peta
+        L.control.centerRoute({ position: 'topright' }).addTo(map);
 
         // map.locate({watch: false});
 
@@ -244,93 +282,6 @@
 
         map.on('locationerror', onLocationError);
 
-        var pointA, pointB;
-        var markerA, markerB;
-
-        map.on('click', function(e) {
-            if (!pointA) {
-                pointA = e.latlng;
-                markerA = L.marker(pointA).addTo(map).bindPopup("Titik A").openPopup();
-            } else if (!pointB) {
-                pointB = e.latlng;
-                markerB = L.marker(pointB).addTo(map).bindPopup("Titik B").openPopup();
-                
-                // Setelah kedua titik dipilih, cari rute
-                findRoutes(pointA, pointB);
-                // L.Routing.control({
-                //     waypoints: [
-                //         L.latLng(pointA),
-                //         L.latLng(pointB)
-                //     ],
-                //     fitSelectedRoutes: true,
-                //     draggableWaypoints: false,
-                //     routeWhileDragging: false,
-                //     lineOptions: {
-                //         addWaypoints: false,
-                //     }
-                // }).addTo(map);
-            }
-        });
-
-        async function findRoutes(pointA, pointB) {
-            var availableRoutes = [];
-
-            let data = await fetchData();
-
-            data.features.forEach(function(feature) {
-                if (feature.geometry.type === "MultiLineString") {
-                    var isNearA = false;
-                    var isNearB = false;
-                    var bufferDistance = 0.5;
-
-                    feature.geometry.coordinates.forEach(function(lineString) {
-                        var line = turf.lineString(lineString);
-
-                        // Buat buffer di sekitar garis
-                        var buffered = turf.buffer(line, bufferDistance, { units: 'kilometers' });
-
-                        // Periksa apakah titik berada dalam buffer
-                        if (turf.booleanPointInPolygon(turf.point([pointA.lng, pointA.lat]), buffered)) {
-                            isNearA = true;
-                        }
-                        if (turf.booleanPointInPolygon(turf.point([pointB.lng, pointB.lat]), buffered)) {
-                            isNearB = true;
-                        }
-                    });
-
-                    if (isNearA && isNearB) {
-                        availableRoutes.push(feature);
-                    }
-                }
-            });
-
-            displayRoutes(availableRoutes);
-        }
-
-        function displayRoutes(routes) {
-            if (routes.length === 0) {
-                alert("Tidak ada rute yang tersedia antara titik A dan titik B.");
-                return;
-            }
-
-            var routeInfo = routes.map(feature => feature.properties.koridor).join(", ");
-            alert("Untuk menuju titik tujuan dari titik berangkat yang dipilih, Anda dapat menaiki angkot dengan nomor: " + routeInfo);
-
-            var routeLayer = L.geoJson(routes, {
-                style: function(feature) {
-                    return {
-                        color: colorStyle[feature.properties.koridor],
-                        // weight: 1
-                    } 
-                },
-                onEachFeature: function(feature, layer) {
-                    layer.bindPopup(feature.properties.koridor + " " + feature.properties.asalTujuan);
-                }
-            }).addTo(map);
-
-            // Atur zoom fit ke rute yang ditemukan
-            map.fitBounds(routeLayer.getBounds());
-        }
     </script>
 </body>
 </html>

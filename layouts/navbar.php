@@ -94,7 +94,7 @@
           <a href="/rute" class="block py-2 px-3 text-[#4983C7] lg:text-white rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:font-bold md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Rute</a>
         </li>
         <li>
-          <a href="/cari" class="block py-2 px-3 text-[#4983C7] lg:text-white rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:font-bold md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Cari</a>
+          <a href="/navigasi" class="block py-2 px-3 text-[#4983C7] lg:text-white rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:font-bold md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Navigasi</a>
         </li>
       </ul>
     </div>
